@@ -1,69 +1,105 @@
 # Sistema de Agendamento para Salão de Beleza
 
-Sistema web para gerenciar agendamentos de salão de beleza desenvolvido em Django.
+Sistema web desenvolvido em Django para gerenciar agendamentos, clientes, profissionais e serviços de um salão de beleza.
 
 ## Funcionalidades
 
-- CRUD de clientes, profissionais e serviços
-- Sistema de agendamentos com validação de conflitos
-- Dashboard com estatísticas básicas
-- Relatórios por período
-- Interface responsiva
+- **Gestão de Clientes**: Cadastro com dados pessoais e histórico
+- **Profissionais**: Controle de especialidades e horários de trabalho
+- **Serviços**: Catálogo com preços e categorias
+- **Agendamentos**: Sistema com validação de conflitos e controle de status
+- **Dashboard**: Estatísticas básicas e próximos agendamentos
+- **Relatórios**: Serviços concluídos por período e performance
 
 ## Tecnologias
 
-- Django 4.2
-- SQLite  
-- Bootstrap 5
-- Docker
+- **Backend**: Django 4.2 (Python 3.11+)
+- **Banco**: SQLite com índices para performance
+- **Frontend**: Bootstrap 5 + JavaScript
+- **Containerização**: Docker
+- **Automação**: Makefile
 
 ## Como executar
 
-### Docker (recomendado)
+### Via Docker (recomendado)
+
 ```bash
+# Ver comandos disponíveis
+make help
+
+# Construir e iniciar
 make build && make up
+
+# Verificar status
+make status
 ```
 
-### Local
+### Execução local
+
 ```bash
+# 1. Ambiente virtual
 python -m venv venv
 source venv/bin/activate
+
+# 2. Dependências
 pip install -r requirements.txt
+
+# 3. Banco de dados
 python manage.py migrate
+
+# 4. Dados de exemplo
 python manage.py populate_data
+
+# 5. Executar
 python manage.py runserver
 ```
 
-Acesso: http://localhost:8000  
-Admin: http://localhost:8000/admin/ (admin/admin123)
+**Acesso:**
+- Sistema: http://localhost:8000
+- Admin: http://localhost:8000/admin/ (admin/admin123)
 
-## Comandos úteis
+## Comandos úteis (Makefile)
 
 | Comando | Descrição |
 |---------|-----------|
-| `make up` | Inicia sistema completo |
-| `make down` | Para o sistema |
-| `make logs` | Ver logs |
-| `make status` | Status do sistema |
+| `make up` | Inicia sistema completo com dados |
+| `make down` | Para e remove container |
+| `make logs` | Ver logs em tempo real |
+| `make restart` | Reinicia o sistema |
+| `make load-data` | Recarrega dados de exemplo |
 
-## Estrutura
+## Dados de demonstração
+
+O comando `populate_data` cria:
+- 10 serviços categorizados
+- 6 profissionais com especialidades
+- 20 clientes com dados brasileiros
+- ~160 agendamentos distribuídos em 45 dias
+
+## Melhorias futuras
+
+- [ ] **API REST** para integração mobile
+- [ ] **Notificações** por email/SMS 
+- [ ] **Calendário** integrado
+- [ ] **Pagamentos** online
+- [ ] **Relatórios** em PDF
+- [ ] **Testes** automatizados
+
+## Notas de desenvolvimento
+
+Algumas melhorias identificadas durante o desenvolvimento:
+- Validação de conflitos poderia considerar duração do serviço
+- Campo `preco_final` talvez seja desnecessário (sempre usa preço do serviço)
+- Falta implementar testes unitários
+
+## Estrutura do projeto
 
 ```
 appointments/
-├── models/       # Cliente, Profissional, Agendamento
-├── views/        # Views organizadas por funcionalidade  
-├── forms.py      # Formulários com validações
-├── admin.py      # Interface administrativa
-└── services/     # Lógica de negócio
+├── models/          # Cliente, Profissional, Agendamento, etc
+├── views/           # Views organizadas por funcionalidade
+├── forms.py         # Formulários com validações personalizadas
+├── admin.py         # Interface administrativa
+├── services/        # Lógica de negócio
+└── management/      # Comandos personalizados (populate_data)
 ```
-
-## TODO
-
-- [ ] Melhorar validação de conflitos considerando duração do serviço
-- [ ] Adicionar notificações por email
-- [ ] Implementar API REST
-- [ ] Testes automatizados
-
-## Observações
-
-Projeto desenvolvido como teste técnico. Algumas melhorias foram identificadas durante o desenvolvimento e estão listadas nos TODOs acima.
