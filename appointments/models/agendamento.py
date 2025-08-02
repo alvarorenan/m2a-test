@@ -79,6 +79,7 @@ class Agendamento(models.Model):
         return f"{self.cliente.nome} - {self.servico.nome} - {self.data_hora.strftime('%d/%m/%Y %H:%M')}"
 
     def save(self, *args, **kwargs):
+        # TODO: Talvez remover esse campo preco_final futuramente
         # Se preço final não foi definido, usa o preço do serviço
         if self.preco_final is None:
             self.preco_final = self.servico.preco

@@ -131,7 +131,8 @@ class AgendamentoForm(forms.ModelForm):
                         f'às {profissional.horario_fim.strftime("%H:%M")}.'
                     )
                 
-                # Verificar conflitos de horário (usar mesma lógica da constraint)
+                # Verificar conflitos de horário
+                # FIXME: Melhorar essa validação para considerar duração do serviço
                 conflitos = Agendamento.objects.filter(
                     profissional=profissional,
                     data_hora=data_hora
