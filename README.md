@@ -157,23 +157,17 @@ Sistema otimizado para lidar com milhares de agendamentos de forma eficiente.
 - **Paginação** em listagens para grandes volumes
 - **Queries otimizadas** nos relatórios de serviços concluídos por período
 
-### Testando Performance
-```bash
-# Gerar mais dados para teste
-python manage.py populate_data --large
-
-# Os relatórios continuam rápidos mesmo com milhares de registros
-```
 
 ## 🏗️ Estrutura do Projeto
 
 ```
-salon_management/
+m2a-test/
 ├── appointments/           # App principal
 │   ├── models/            # Modelos (Cliente, Profissional, Agendamento)
 │   ├── views/             # Views organizadas por funcionalidade
 │   ├── services/          # Lógica de negócio
 │   └── management/        # Comandos personalizados
+│── salon_management       # Pasta de management gerada pelo Django
 ├── templates/             # Templates HTML
 ├── static/                # CSS, JS, imagens
 ├── requirements.txt       # Dependências Python
