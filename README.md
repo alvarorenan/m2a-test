@@ -85,12 +85,13 @@ O comando `populate_data` cria:
 - [ ] **Relatórios** em PDF
 - [ ] **Testes** automatizados
 
-## Notas de desenvolvimento
+## TODOs e melhorias técnicas
 
-Algumas melhorias identificadas durante o desenvolvimento:
-- Validação de conflitos poderia considerar duração do serviço
-- Campo `preco_final` talvez seja desnecessário (sempre usa preço do serviço)
-- Falta implementar testes unitários
+- [ ] **FIXME**: Validação de conflitos deve considerar duração do serviço
+- [ ] **TODO**: Refatorar campo `preco_final` (redundante com preço do serviço)
+- [ ] **TODO**: Implementar testes unitários para models e forms
+- [ ] **TODO**: Otimizar queries N+1 em relatórios
+- [ ] **FIXME**: Melhorar validação de horários sobrepostos
 
 ## Estrutura do projeto
 
