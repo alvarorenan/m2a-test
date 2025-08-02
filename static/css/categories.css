@@ -1,0 +1,89 @@
+/* Cores para badges de categorias */
+
+/* Categorias de serviços */
+.badge-categoria-CABELO {
+    background-color: #e91e63 !important;
+    color: white !important;
+    border: 1px solid #c2185b !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3) !important;
+}
+
+.badge-categoria-ESTETICA {
+    background-color: #9c27b0 !important;
+    color: white !important;
+    border: 1px solid #7b1fa2 !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3) !important;
+}
+
+.badge-categoria-UNHAS {
+    background-color: #ff5722 !important;
+    color: white !important;
+    border: 1px solid #d84315 !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3) !important;
+}
+
+.badge-categoria-MASSAGEM {
+    background-color: #4caf50 !important;
+    color: white !important;
+    border: 1px solid #388e3c !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3) !important;
+}
+
+/* Fallback para outras categorias */
+.badge-categoria-default {
+    background-color: #607d8b !important;
+    color: white !important;
+    border: 1px solid #455a64 !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3) !important;
+}
+
+/* Efeitos hover */
+.badge-categoria-CABELO:hover {
+    background-color: #ad1457 !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.badge-categoria-ESTETICA:hover {
+    background-color: #7b1fa2 !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.badge-categoria-UNHAS:hover {
+    background-color: #d84315 !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.badge-categoria-MASSAGEM:hover {
+    background-color: #388e3c !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+/* Animação suave */
+.badge[class*="badge-categoria-"] {
+    transition: all 0.2s ease;
+    cursor: default;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    font-size: 0.7rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Tamanhos especiais para relatórios */
+.badge-categoria-lg {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.badge-categoria-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
