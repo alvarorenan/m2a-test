@@ -1,0 +1,6 @@
+Django==4.2.7
+python-decouple==3.8
+django-extensions==3.2.3
+django-bootstrap5==23.3
+whitenoise==6.6.0
+Faker==21.0.0
