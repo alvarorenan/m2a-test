@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Relatório de Serviços - Sistema de Agendamento{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/categories.css' %}">
+{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Relatório de Serviços Concluídos</h1>
+    <div>
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-print"></i> Imprimir
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filtros do Relatório -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filtros do Relatório</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="data_inicio" class="form-label">Data Início</label>
+                <input type="date" name="data_inicio" id="data_inicio" class="form-control" 
+                       value="{{ data_inicio|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label for="data_fim" class="form-label">Data Fim</label>
+                <input type="date" name="data_fim" id="data_fim" class="form-control" 
+                       value="{{ data_fim|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="col-md-4">
+                <label for="profissional" class="form-label">Profissional</label>
+                <select name="profissional" id="profissional" class="form-select">
+                    <option value="">Todos os Profissionais</option>
+                    {% for prof in profissionais %}
+                        <option value="{{ prof.id }}" {% if profissional_id == prof.id|stringformat:"s" %}selected{% endif %}>
+                            {{ prof.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-filter"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cards de Estatísticas Gerais -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="card-title">{{ stats_gerais.total_agendamentos|default:0 }}</h3>
+                        <p class="card-text">Serviços Concluídos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa-solid fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="card-title">R$ {{ stats_gerais.receita_total|floatformat:2|default:"0,00" }}</h3>
+                        <p class="card-text">Receita Total</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa-solid fa-money-bill fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="card-title">R$ {{ stats_gerais.ticket_medio|floatformat:2|default:"0,00" }}</h3>
+                        <p class="card-text">Ticket Médio</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa-solid fa-calculator fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="card-title">31</h3>
+                        <p class="card-text">Dias no Período</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa-solid fa-calendar fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Serviços Mais Realizados -->
+{% if servicos_stats %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Serviços Mais Realizados</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Serviço</th>
+                        <th>Categoria</th>
+                        <th>Quantidade</th>
+                        <th>Receita</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in servicos_stats %}
+                    <tr>
+                        <td>{{ stat.servico__nome }}</td>
+                        <td><span class="badge badge-categoria-{{ stat.servico__categoria }} badge-categoria-lg">{{ stat.servico__categoria }}</span></td>
+                        <td>{{ stat.total_servicos }}</td>
+                        <td class="text-success fw-bold">R$ {{ stat.receita_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Performance dos Profissionais -->
+{% if profissionais_stats %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Performance dos Profissionais</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Profissional</th>
+                        <th>Serviços</th>
+                        <th>Receita</th>
+                        <th>Média/Dia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in profissionais_stats %}
+                    <tr>
+                        <td>{{ stat.profissional__nome }}</td>
+                        <td>{{ stat.total_servicos }}</td>
+                        <td class="text-success fw-bold">R$ {{ stat.receita_total|floatformat:2 }}</td>
+                        <td>{{ stat.total_servicos|floatformat:1 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Informações do Relatório -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Informações do Relatório</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Período:</strong> {{ data_inicio|date:"d/m/Y" }} a {{ data_fim|date:"d/m/Y" }}</p>
+                <p><strong>Profissional:</strong> 
+                    {% if profissional_id %}
+                        {% for prof in profissionais %}
+                            {% if prof.id|stringformat:"s" == profissional_id %}{{ prof.nome }}{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Todos
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Data de Geração:</strong> {% now "d/m/Y H:i" %}</p>
+                <p><strong>Total de Registros:</strong> {{ stats_gerais.total_agendamentos|default:0 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- CSS para impressão -->
+<style media="print">
+    .btn, .card-header, .navbar, .footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+    }
+</style>
+{% endblock %}

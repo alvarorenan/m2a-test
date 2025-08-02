@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendamentos - Sistema de Agendamento{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Agendamentos</h1>
+    <div>
+        <a href="{% url 'appointments:agendamento_create' %}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Novo Agendamento
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filtros</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">Todos</option>
+                    {% for choice in status_choices %}
+                        <option value="{{ choice.0 }}" {% if request.GET.status == choice.0 %}selected{% endif %}>
+                            {{ choice.1 }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="profissional" class="form-label">Profissional</label>
+                <select name="profissional" id="profissional" class="form-select">
+                    <option value="">Todos</option>
+                    {% for prof in profissionais %}
+                        <option value="{{ prof.id }}" {% if request.GET.profissional == prof.id|slugify %}selected{% endif %}>
+                            {{ prof.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="data_inicio" class="form-label">Data Início</label>
+                <input type="date" name="data_inicio" id="data_inicio" class="form-control" 
+                       value="{{ request.GET.data_inicio }}">
+            </div>
+            
+            <div class="col-md-2">
+                <label for="data_fim" class="form-label">Data Fim</label>
+                <input type="date" name="data_fim" id="data_fim" class="form-control" 
+                       value="{{ request.GET.data_fim }}">
+            </div>
+            
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary me-2">
+                    <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+                </button>
+                <a href="{% url 'appointments:agendamento_list' %}" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            Resultados
+            {% if agendamentos %}
+                <span class="badge bg-secondary">{{ paginator.count }} agendamento{{ paginator.count|pluralize }}</span>
+            {% endif %}
+        </h5>
+    </div>
+    
+    <div class="card-body">
+        {% if agendamentos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Cliente</th>
+                            <th>Profissional</th>
+                            <th>Serviço</th>
+                            <th>Preço</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ agendamento.data_hora|date:"d/m/Y" }}</div>
+                                <small class="text-muted">{{ agendamento.data_hora|time:"H:i" }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ agendamento.cliente.nome }}</div>
+                                {% if agendamento.cliente.telefone %}
+                                    <small class="text-muted">{{ agendamento.cliente.telefone }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ agendamento.profissional.nome }}</td>
+                            <td>
+                                <div>{{ agendamento.servico.nome }}</div>
+                                <small class="text-muted">{{ agendamento.servico.categoria }}</small>
+                            </td>
+                            <td class="fw-bold">R$ {{ agendamento.preco_final|floatformat:2 }}</td>
+                            <td>
+                                {% if agendamento.status == 'AGENDADO' %}
+                                    <span class="badge bg-primary status-badge">{{ agendamento.get_status_display }}</span>
+                                {% elif agendamento.status == 'CONFIRMADO' %}
+                                    <span class="badge bg-success status-badge">{{ agendamento.get_status_display }}</span>
+                                {% elif agendamento.status == 'EM_ANDAMENTO' %}
+                                    <span class="badge bg-warning status-badge">{{ agendamento.get_status_display }}</span>
+                                {% elif agendamento.status == 'CONCLUIDO' %}
+                                    <span class="badge bg-info status-badge">{{ agendamento.get_status_display }}</span>
+                                {% elif agendamento.status == 'CANCELADO' %}
+                                    <span class="badge bg-danger status-badge">{{ agendamento.get_status_display }}</span>
+                                {% elif agendamento.status == 'NAO_COMPARECEU' %}
+                                    <span class="badge bg-dark status-badge">{{ agendamento.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary status-badge">{{ agendamento.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'appointments:agendamento_detail' agendamento.pk %}" 
+                                       class="btn btn-outline-primary" title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    {% if agendamento.status == 'AGENDADO' or agendamento.status == 'CONFIRMADO' %}
+                                        <a href="{% url 'appointments:agendamento_edit' agendamento.pk %}" 
+                                           class="btn btn-outline-secondary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <!-- Botões contextuais baseados no status -->
+                                    {% if agendamento.status == 'AGENDADO' %}
+                                        <button type="button" class="btn btn-outline-success" 
+                                                onclick="updateStatus({{ agendamento.pk }}, 'CONFIRMADO')" 
+                                                title="Confirmar">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                onclick="updateStatus({{ agendamento.pk }}, 'CANCELADO')" 
+                                                title="Cancelar">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    
+                                    {% elif agendamento.status == 'CONFIRMADO' %}
+                                        <button type="button" class="btn btn-outline-warning" 
+                                                onclick="updateStatus({{ agendamento.pk }}, 'EM_ANDAMENTO')" 
+                                                title="Iniciar Atendimento">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                onclick="updateStatus({{ agendamento.pk }}, 'CANCELADO')" 
+                                                title="Cancelar">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    
+                                    {% elif agendamento.status == 'EM_ANDAMENTO' %}
+                                        <button type="button" class="btn btn-outline-success" 
+                                                onclick="updateStatus({{ agendamento.pk }}, 'CONCLUIDO')" 
+                                                title="Concluir Atendimento">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <nav aria-label="Navegação da página">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.profissional %}&profissional={{ request.GET.profissional }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">Primeira</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.profissional %}&profissional={{ request.GET.profissional }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">Anterior</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.profissional %}&profissional={{ request.GET.profissional }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">Próxima</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.profissional %}&profissional={{ request.GET.profissional }}{% endif %}{% if request.GET.data_inicio %}&data_inicio={{ request.GET.data_inicio }}{% endif %}{% if request.GET.data_fim %}&data_fim={{ request.GET.data_fim }}{% endif %}">Última</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nenhum agendamento encontrado</h5>
+                <p class="text-muted">Tente ajustar os filtros ou criar um novo agendamento.</p>
+                <a href="{% url 'appointments:agendamento_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Novo Agendamento
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStatus(agendamentoId, newStatus) {
+    if (confirm('Tem certeza que deseja alterar o status deste agendamento?')) {
+        fetch(`/agendamentos/${agendamentoId}/status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `status=${newStatus}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erro ao atualizar status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao atualizar status');
+        });
+    }
+}
+</script>
+
+{% csrf_token %}
+{% endblock %}

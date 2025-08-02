@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Novo Agendamento - Sistema de Agendamento{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/categories.css' %}">
+<style>
+/* Dica sempre visível */
+.dica-sempre-visivel {
+    position: sticky !important;
+    top: 20px !important;
+    z-index: 9999 !important;
+    background-color: #d1ecf1 !important;
+    border: 1px solid #bee5eb !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+</style>
+{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ titulo|default:"Novo Agendamento" }}</h1>
+    <div>
+        <a href="{% url 'appointments:agendamento_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informações do Agendamento</h5>
+            </div>
+            <div class="card-body">
+                <!-- Mostrar erros não específicos de campo -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                
+                <form method="post" id="agendamentoForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }} *</label>
+                            {{ form.cliente }}
+                            {% if form.cliente.errors %}
+                                <div class="text-danger small">{{ form.cliente.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.profissional.id_for_label }}" class="form-label">{{ form.profissional.label }} *</label>
+                            {{ form.profissional }}
+                            {% if form.profissional.errors %}
+                                <div class="text-danger small">{{ form.profissional.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.servico.id_for_label }}" class="form-label">{{ form.servico.label }} *</label>
+                            {{ form.servico }}
+                            {% if form.servico.errors %}
+                                <div class="text-danger small">{{ form.servico.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.data.id_for_label }}" class="form-label">{{ form.data.label }} *</label>
+                            {{ form.data }}
+                            {% if form.data.errors %}
+                                <div class="text-danger small">{{ form.data.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.data.help_text %}
+                                <div class="form-text">{{ form.data.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.hora.id_for_label }}" class="form-label">{{ form.hora.label }} *</label>
+                            {{ form.hora }}
+                            {% if form.hora.errors %}
+                                <div class="text-danger small">{{ form.hora.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.hora.help_text %}
+                                <div class="form-text">{{ form.hora.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.observacoes.id_for_label }}" class="form-label">{{ form.observacoes.label }}</label>
+                        {{ form.observacoes }}
+                        {% if form.observacoes.errors %}
+                            <div class="text-danger small">{{ form.observacoes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Informações do Serviço Selecionado -->
+                    <div id="servicoInfo" class="alert alert-info" style="display: none;">
+                        <h6>Informações do Serviço:</h6>
+                        <div id="servicoDetalhes"></div>
+                    </div>
+                    
+                    <!-- Horários Disponíveis -->
+                    <div id="horariosDisponiveis" class="mb-3" style="display: none;">
+                        <label class="form-label">Horários Disponíveis:</label>
+                        <div id="horariosContainer" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'appointments:agendamento_list' %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {{ botao_texto|default:"Salvar Agendamento" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabela de Horários dos Profissionais -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">📅 Horários dos Profissionais</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Profissional</th>
+                                <th>Dias</th>
+                                <th>Horário</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for profissional in form.profissional.field.queryset %}
+                            <tr class="profissional-row" data-profissional-id="{{ profissional.id }}">
+                                <td>
+                                    <strong>{{ profissional.nome }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {% regroup profissional.especialidades.all by categoria as grouped_especialidades %}
+                                        {% for grupo in grouped_especialidades %}
+                                            <span class="badge badge-categoria-{{ grupo.grouper }} badge-categoria-sm">{{ grupo.grouper }}</span>
+                                        {% endfor %}
+                                    </small>
+                                </td>
+                                <td>
+                                    <small>
+                                        {% for dia in profissional.lista_dias_semana %}
+                                            {% if dia == 1 %}Seg{% endif %}
+                                            {% if dia == 2 %}Ter{% endif %}
+                                            {% if dia == 3 %}Qua{% endif %}
+                                            {% if dia == 4 %}Qui{% endif %}
+                                            {% if dia == 5 %}Sex{% endif %}
+                                            {% if dia == 6 %}Sáb{% endif %}
+                                            {% if dia == 7 %}Dom{% endif %}
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </small>
+                                </td>
+                                <td>
+                                    <small>
+                                        {{ profissional.horario_inicio|time:"H:i" }} - 
+                                        {{ profissional.horario_fim|time:"H:i" }}
+                                    </small>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">
+                                    Nenhum profissional ativo
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Legenda -->
+                <div class="mt-3">
+                    <h6 class="text-muted">Especialidades:</h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge badge-categoria-CABELO">CABELO</span>
+                        <span class="badge badge-categoria-UNHAS">UNHAS</span>
+                        <span class="badge badge-categoria-ESTETICA">ESTETICA</span>
+                        <span class="badge badge-categoria-MASSAGEM">MASSAGEM</span>
+                    </div>
+                </div>
+                
+                <!-- Dica -->
+                <div class="alert alert-info mt-3 p-2 dica-sempre-visivel">
+                    <small>
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <strong>Dica:</strong> Consulte esta tabela para ver quando cada profissional está disponível antes de agendar.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Dados dos serviços para JavaScript
+const servicos = {};
+{% for field in form %}
+    {% if field.name == 'servico' %}
+        {% for choice in field.field.queryset %}
+            servicos[{{ choice.id }}] = {
+                'nome': '{{ choice.nome }}',
+                'preco': {{ choice.preco }},
+                'duracao': {{ choice.duracao_minutos }},
+                'categoria': '{{ choice.categoria }}'
+            };
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners
+    document.getElementById('id_servico').addEventListener('change', mostrarInfoServico);
+    document.getElementById('id_profissional').addEventListener('change', carregarHorarios);
+    document.getElementById('id_data').addEventListener('change', carregarHorarios);
+    
+    // Mostrar informações do serviço se já selecionado
+    if (document.getElementById('id_servico').value) {
+        mostrarInfoServico();
+    }
+    
+
+});
+
+function mostrarInfoServico() {
+    const servicoId = document.getElementById('id_servico').value;
+    const servicoInfo = document.getElementById('servicoInfo');
+    const servicoDetalhes = document.getElementById('servicoDetalhes');
+    
+    if (servicoId && servicos[servicoId]) {
+        const servico = servicos[servicoId];
+        const duracao = servico.duracao >= 60 
+            ? `${Math.floor(servico.duracao / 60)}h ${servico.duracao % 60}min`
+            : `${servico.duracao}min`;
+        
+        servicoDetalhes.innerHTML = `
+            <div class="row">
+                <div class="col-md-3"><strong>Categoria:</strong> ${servico.categoria}</div>
+                <div class="col-md-3"><strong>Duração:</strong> ${duracao}</div>
+                <div class="col-md-3"><strong>Preço:</strong> R$ ${servico.preco}</div>
+            </div>
+        `;
+        servicoInfo.style.display = 'block';
+    } else {
+        servicoInfo.style.display = 'none';
+    }
+}
+
+function carregarHorarios() {
+    const profissionalId = document.getElementById('id_profissional').value;
+    const data = document.getElementById('id_data').value;
+    
+    if (!profissionalId || !data) return;
+    
+    // Todos os serviços têm 60min, não precisa do servico_id
+    const url = `/api/horarios-disponiveis/?profissional_id=${profissionalId}&data=${data}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('horariosContainer');
+            const horariosDiv = document.getElementById('horariosDisponiveis');
+            
+            if (data.horarios && data.horarios.length > 0) {
+                container.innerHTML = '';
+                data.horarios.forEach(horario => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-outline-primary btn-sm';
+                    btn.textContent = horario;
+                    btn.onclick = () => selecionarHorario(data.split('T')[0], horario);
+                    container.appendChild(btn);
+                });
+                horariosDiv.style.display = 'block';
+            } else {
+                horariosDiv.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar horários:', error);
+        });
+}
+
+function selecionarHorario(data, horario) {
+    const horaInput = document.getElementById('id_hora');
+    horaInput.value = horario;
+    
+    // Destacar botão selecionado
+    document.querySelectorAll('#horariosContainer button').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    
+    event.target.classList.remove('btn-outline-primary');
+    event.target.classList.add('btn-primary');
+}
+
+
+</script>
+{% endblock %}

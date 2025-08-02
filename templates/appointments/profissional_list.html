@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profissionais - Sistema de Agendamento{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/categories.css' %}">
+{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Profissionais</h1>
+    <a href="{% url 'appointments:profissional_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Novo Profissional
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0">Lista de Profissionais</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="get" class="d-flex">
+                            <input type="text" class="form-control" name="search" 
+                                   placeholder="Buscar por nome ou email..." 
+                                   value="{{ request.GET.search }}">
+                            <button type="submit" class="btn btn-outline-secondary ms-2">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if profissionais %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Especialidades</th>
+                                    <th>Contato</th>
+                                    <th>Horário</th>
+                                    <th>Dias</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profissional in profissionais %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ profissional.nome }}</strong>
+                                    </td>
+                                    <td>
+                                        {% regroup profissional.especialidades.all by categoria as grouped_especialidades %}
+                                        {% for grupo in grouped_especialidades %}
+                                            <span class="badge badge-categoria-{{ grupo.grouper }} badge-categoria-sm">{{ grupo.grouper }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ profissional.telefone }}<br>
+                                        <small class="text-muted">{{ profissional.email|default:"—" }}</small>
+                                    </td>
+                                    <td>
+                                        {{ profissional.horario_inicio|time:"H:i" }} - 
+                                        {{ profissional.horario_fim|time:"H:i" }}
+                                    </td>
+                                    <td>
+                                        <small>
+                                            {% for dia in profissional.lista_dias_semana %}
+                                                {% if dia == 1 %}Seg{% endif %}
+                                                {% if dia == 2 %}Ter{% endif %}
+                                                {% if dia == 3 %}Qua{% endif %}
+                                                {% if dia == 4 %}Qui{% endif %}
+                                                {% if dia == 5 %}Sex{% endif %}
+                                                {% if dia == 6 %}Sáb{% endif %}
+                                                {% if dia == 7 %}Dom{% endif %}
+                                                {% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'appointments:profissional_update' profissional.pk %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-md fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Nenhum profissional encontrado.</p>
+                        <a href="{% url 'appointments:profissional_create' %}" class="btn btn-primary">
+                            Cadastrar primeiro profissional
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

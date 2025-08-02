@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Agendamento - Salão de Beleza{% endblock %}</title>
+    
+    {% load django_bootstrap5 %}
+    {% load static %}
+    {% bootstrap_css %}
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'appointments:dashboard' %}">
+                💄 Salão de Beleza
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'appointments:dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAgendamentos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Agendamentos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownAgendamentos">
+                            <li><a class="dropdown-item" href="{% url 'appointments:agendamento_list' %}"><i class="fa-solid fa-list"></i> Listar Agendamentos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'appointments:agendamento_create' %}"><i class="fa-solid fa-plus"></i> Novo Agendamento</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownClientes" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Clientes
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownClientes">
+                                                    <li><a class="dropdown-item" href="{% url 'appointments:cliente_list' %}"><i class="fa-solid fa-list"></i> Listar Clientes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'appointments:cliente_create' %}"><i class="fa-solid fa-plus"></i> Novo Cliente</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProfissionais" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Profissionais
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownProfissionais">
+                                                    <li><a class="dropdown-item" href="{% url 'appointments:profissional_list' %}"><i class="fa-solid fa-list"></i> Listar Profissionais</a></li>
+                        <li><a class="dropdown-item" href="{% url 'appointments:profissional_create' %}"><i class="fa-solid fa-plus"></i> Novo Profissional</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServicos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Serviços
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownServicos">
+                                                    <li><a class="dropdown-item" href="{% url 'appointments:servico_list' %}"><i class="fa-solid fa-list"></i> Listar Serviços</a></li>
+                        <li><a class="dropdown-item" href="{% url 'appointments:servico_create' %}"><i class="fa-solid fa-plus"></i> Novo Serviço</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'appointments:relatorio_servicos' %}">Relatórios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert 
+                    {% if message.tags == 'error' %}alert-danger
+                    {% elif message.tags == 'warning' %}alert-warning
+                    {% elif message.tags == 'success' %}alert-success
+                    {% elif message.tags == 'info' %}alert-info
+                    {% else %}alert-info
+                    {% endif %} 
+                    alert-dismissible fade show shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'error' %}
+                            <i class="fa-solid fa-circle-exclamation me-2 text-danger"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fa-solid fa-triangle-exclamation me-2 text-warning"></i>
+                        {% elif message.tags == 'success' %}
+                            <i class="fa-solid fa-circle-check me-2 text-success"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fa-solid fa-circle-info me-2 text-info"></i>
+                        {% else %}
+                            <i class="fa-solid fa-bell me-2"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Page Header -->
+        {% block header %}{% endblock %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Sistema de Agendamento</h5>
+                    <p class="text-muted">Gestão eficiente para salões de beleza</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="text-muted">
+                        <small>Desenvolvido com Django 4.2 e Bootstrap 5</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% bootstrap_javascript %}
+    
+    <!-- Máscara de telefone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/inputmask.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/masks.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

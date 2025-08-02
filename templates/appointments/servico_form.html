@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Editar Serviço{% else %}Novo Serviço{% endif %} - Sistema de Agendamento
+{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1>{% if object %}Editar Serviço{% else %}Novo Serviço{% endif %}</h1>
+    <a href="{% url 'appointments:servico_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informações do Serviço</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ form.nome.id_for_label }}" class="form-label">{{ form.nome.label }} *</label>
+                            <input type="text" class="form-control" name="{{ form.nome.name }}" 
+                                   value="{{ form.nome.value|default:'' }}" required>
+                            {% if form.nome.errors %}
+                                <div class="text-danger small">{{ form.nome.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.categoria.id_for_label }}" class="form-label">{{ form.categoria.label }} *</label>
+                            <select name="{{ form.categoria.name }}" class="form-select" required>
+                                <option value="">Selecione a categoria</option>
+                                <option value="CABELO" {% if form.categoria.value == 'CABELO' %}selected{% endif %}>Cabelo</option>
+                                <option value="UNHAS" {% if form.categoria.value == 'UNHAS' %}selected{% endif %}>Unhas</option>
+                                <option value="ESTETICA" {% if form.categoria.value == 'ESTETICA' %}selected{% endif %}>Estética</option>
+                                <option value="MASSAGEM" {% if form.categoria.value == 'MASSAGEM' %}selected{% endif %}>Massagem</option>
+                                <option value="OUTROS" {% if form.categoria.value == 'OUTROS' %}selected{% endif %}>Outros</option>
+                            </select>
+                            {% if form.categoria.errors %}
+                                <div class="text-danger small">{{ form.categoria.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.descricao.id_for_label }}" class="form-label">{{ form.descricao.label }}</label>
+                        <textarea class="form-control" name="{{ form.descricao.name }}" rows="3">{{ form.descricao.value|default:'' }}</textarea>
+                        {% if form.descricao.errors %}
+                            <div class="text-danger small">{{ form.descricao.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.preco.id_for_label }}" class="form-label">{{ form.preco.label }} *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" class="form-control" name="{{ form.preco.name }}" 
+                                       step="0.01" min="0" value="{{ form.preco.value|default:'' }}" required>
+                            </div>
+                            {% if form.preco.errors %}
+                                <div class="text-danger small">{{ form.preco.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.duracao_minutos.id_for_label }}" class="form-label">{{ form.duracao_minutos.label }} *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="{{ form.duracao_minutos.name }}" 
+                                       min="1" value="{{ form.duracao_minutos.value|default:'60' }}" required>
+                                <span class="input-group-text">min</span>
+                            </div>
+                            {% if form.duracao_minutos.errors %}
+                                <div class="text-danger small">{{ form.duracao_minutos.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'appointments:servico_list' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Serviço
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

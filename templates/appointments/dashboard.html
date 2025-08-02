@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Sistema de Agendamento{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-primary">Dashboard</h1>
+    <a href="{% url 'appointments:agendamento_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Novo Agendamento
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-uppercase mb-1">
+                            Agendamentos Hoje
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold">{{ stats.agendamentos_hoje }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-day fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-uppercase mb-1">
+                            Confirmados
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold">{{ stats.agendamentos_confirmados }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-uppercase mb-1">
+                            Concluídos
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold">{{ stats.agendamentos_concluidos }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-star fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-uppercase mb-1">
+                            Cancelados
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold">{{ stats.agendamentos_cancelados }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total de Clientes</h5>
+                <h2 class="text-primary">{{ stats.total_clientes }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Profissionais Ativos</h5>
+                <h2 class="text-success">{{ stats.total_profissionais }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Serviços Disponíveis</h5>
+                <h2 class="text-info">{{ stats.total_servicos }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Appointments and Next Appointments -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Agendamentos de Hoje ({{ hoje|date:"d/m/Y" }})</h5>
+            </div>
+            <div class="card-body">
+                {% if agendamentos_hoje %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Horário</th>
+                                    <th>Cliente</th>
+                                    <th>Profissional</th>
+                                    <th>Serviço</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for agendamento in agendamentos_hoje %}
+                                <tr>
+                                    <td>{{ agendamento.data_hora|time:"H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'appointments:agendamento_detail' agendamento.pk %}">
+                                            {{ agendamento.cliente.nome }}
+                                        </a>
+                                    </td>
+                                    <td>{{ agendamento.profissional.nome }}</td>
+                                    <td>{{ agendamento.servico.nome }}</td>
+                                    <td>
+                                        {% if agendamento.status == 'AGENDADO' %}
+                                            <span class="badge bg-primary">{{ agendamento.get_status_display }}</span>
+                                        {% elif agendamento.status == 'CONFIRMADO' %}
+                                            <span class="badge bg-success">{{ agendamento.get_status_display }}</span>
+                                        {% elif agendamento.status == 'EM_ANDAMENTO' %}
+                                            <span class="badge bg-warning">{{ agendamento.get_status_display }}</span>
+                                        {% elif agendamento.status == 'CONCLUIDO' %}
+                                            <span class="badge bg-info">{{ agendamento.get_status_display }}</span>
+                                        {% elif agendamento.status == 'CANCELADO' %}
+                                            <span class="badge bg-danger">{{ agendamento.get_status_display }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ agendamento.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center mb-0">Nenhum agendamento para hoje.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Próximos Agendamentos</h5>
+            </div>
+            <div class="card-body">
+                {% if proximos_agendamentos %}
+                    {% for agendamento in proximos_agendamentos %}
+                    <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                        <div>
+                            <h6 class="mb-1">{{ agendamento.cliente.nome }}</h6>
+                            <small class="text-muted">{{ agendamento.servico.nome }}</small><br>
+                            <small class="text-muted">{{ agendamento.profissional.nome }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">{{ agendamento.data_hora|date:"d/m" }}</div>
+                            <small class="text-muted">{{ agendamento.data_hora|time:"H:i" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">Nenhum agendamento próximo.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination and summary -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div>
+        <p class="text-muted">
+            Mostrando {{ agendamentos.start_index }} - {{ agendamentos.end_index }} de {{ agendamentos.paginator.count }} agendamentos
+        </p>
+    </div>
+    
+    <!-- Pagination -->
+    {% if agendamentos.has_other_pages %}
+    <nav aria-label="Navegação">
+        <ul class="pagination">
+            {% if agendamentos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}{% if request.GET.profissional %}profissional={{ request.GET.profissional }}&{% endif %}{% if request.GET.data_inicio %}data_inicio={{ request.GET.data_inicio }}&{% endif %}{% if request.GET.data_fim %}data_fim={{ request.GET.data_fim }}&{% endif %}page={{ agendamentos.previous_page_number }}">
+                        Anterior
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for num in agendamentos.paginator.page_range %}
+                {% if agendamentos.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > agendamentos.number|add:'-3' and num < agendamentos.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}{% if request.GET.profissional %}profissional={{ request.GET.profissional }}&{% endif %}{% if request.GET.data_inicio %}data_inicio={{ request.GET.data_inicio }}&{% endif %}{% if request.GET.data_fim %}data_fim={{ request.GET.data_fim }}&{% endif %}page={{ num }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if agendamentos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}{% if request.GET.profissional %}profissional={{ request.GET.profissional }}&{% endif %}{% if request.GET.data_inicio %}data_inicio={{ request.GET.data_inicio }}&{% endif %}{% if request.GET.data_fim %}data_fim={{ request.GET.data_fim }}&{% endif %}page={{ agendamentos.next_page_number }}">
+                        Próximo
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

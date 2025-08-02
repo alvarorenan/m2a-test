@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if object %}Editar Profissional{% else %}Novo Profissional{% endif %} - Sistema de Agendamento
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1>{% if object %}Editar Profissional{% else %}Novo Profissional{% endif %}</h1>
+    <a href="{% url 'appointments:profissional_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informações do Profissional</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ form.nome.id_for_label }}" class="form-label">{{ form.nome.label }} *</label>
+                            <input type="text" class="form-control" name="{{ form.nome.name }}" 
+                                   value="{{ form.nome.value|default:'' }}" required>
+                            {% if form.nome.errors %}
+                                <div class="text-danger small">{{ form.nome.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.telefone.id_for_label }}" class="form-label">{{ form.telefone.label }} *</label>
+                            {{ form.telefone }}
+                            {% if form.telefone.errors %}
+                                <div class="text-danger small">{{ form.telefone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                        <input type="email" class="form-control" name="{{ form.email.name }}" 
+                               value="{{ form.email.value|default:'' }}">
+                        {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.especialidades.label }} *</label>
+                        <div class="especialidades-container">
+                            {% for choice in form.especialidades.field.queryset %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="{{ form.especialidades.name }}" 
+                                           value="{{ choice.pk }}" 
+                                           id="especialidade_{{ choice.pk }}"
+                                           {% if choice in form.especialidades.initial %}checked{% endif %}>
+                                    <label class="form-check-label" for="especialidade_{{ choice.pk }}">
+                                        <strong>{{ choice.nome }}</strong><br>
+                                        <small class="text-muted">{{ choice.get_categoria_display }} - R$ {{ choice.preco }}</small>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-text">Selecione todas as especialidades que o profissional atende</div>
+                        {% if form.especialidades.errors %}
+                            <div class="text-danger small">{{ form.especialidades.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.horario_inicio.id_for_label }}" class="form-label">{{ form.horario_inicio.label }} *</label>
+                            <input type="time" class="form-control" name="{{ form.horario_inicio.name }}" 
+                                   value="{{ form.horario_inicio.value|time:'H:i'|default:'08:00' }}" required>
+                            {% if form.horario_inicio.errors %}
+                                <div class="text-danger small">{{ form.horario_inicio.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.horario_fim.id_for_label }}" class="form-label">{{ form.horario_fim.label }} *</label>
+                            <input type="time" class="form-control" name="{{ form.horario_fim.name }}" 
+                                   value="{{ form.horario_fim.value|time:'H:i'|default:'18:00' }}" required>
+                            {% if form.horario_fim.errors %}
+                                <div class="text-danger small">{{ form.horario_fim.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.dias_semana_choices.label }} *</label>
+                        <div class="dias-semana-grid">
+                            {% for choice in form.dias_semana_choices.field.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="{{ form.dias_semana_choices.name }}" 
+                                           value="{{ choice.0 }}" 
+                                           id="dia_{{ choice.0 }}"
+                                           {% if choice.0 in form.dias_semana_choices.value|default_if_none:'' %}checked{% endif %}>
+                                    <label class="form-check-label" for="dia_{{ choice.0 }}">
+                                        {{ choice.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-text">Selecione os dias da semana que o profissional trabalha</div>
+                        {% if form.dias_semana_choices.errors %}
+                            <div class="text-danger small">{{ form.dias_semana_choices.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'appointments:profissional_list' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Profissional
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
