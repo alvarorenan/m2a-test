@@ -67,6 +67,9 @@ python manage.py runserver
 | `make logs` | Ver logs em tempo real |
 | `make restart` | Reinicia o sistema |
 | `make load-data` | Recarrega dados de exemplo |
+| `make test` | Executa testes (auto-detecta ambiente) |
+| `make test-coverage` | Executa testes com relatório de cobertura |
+| `make format` | Formata código Python (isort + black + flake8) |
 
 ## Dados de demonstração
 
@@ -76,6 +79,18 @@ O comando `populate_data` cria:
 - 20 clientes com dados brasileiros
 - ~160 agendamentos distribuídos em 45 dias
 
+## Desenvolvimento
+
+### Testes
+- **14 testes** automatizados cobrindo models, views e forms
+- Execução via `make test` (detecta ambiente automaticamente)
+- Relatório de cobertura com `make test-coverage` (gera HTML em `htmlcov/`)
+
+### Qualidade de código
+- Formatação automática com `make format` (isort + black + flake8)
+- Ignora automaticamente erros de formatação irrelevantes
+- Foco em problemas reais como imports não utilizados
+
 ## Melhorias futuras
 
 - [ ] **API REST** para integração mobile
@@ -83,13 +98,13 @@ O comando `populate_data` cria:
 - [ ] **Calendário** integrado
 - [ ] **Pagamentos** online
 - [ ] **Relatórios** mais completos, com inclusão de gráficos, dashboards e KPIs relevantes
-- [ ] **Testes** automatizados
+- [ ] **Cobertura de testes** mais ampla
 
 ## Notas de desenvolvimento
 
 Algumas melhorias identificadas durante o desenvolvimento:
 - Validação de conflitos poderia considerar duração do serviço
-- Falta implementar testes unitários
+- Expandir cobertura de testes para edge cases
 
 ## Diagrama de Classes
 

@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from django.utils import timezone
-from ..models import Cliente, Servico, Profissional, Agendamento
+
+from ..models import Agendamento, Cliente, Profissional, Servico
 from ..utils import get_local_now, get_local_today
 
 
@@ -9,36 +9,41 @@ def dashboard(request):
     # Obtém a data atual no timezone configurado (America/Sao_Paulo)
     agora_local = get_local_now()
     hoje = get_local_today()
-    
+
     # Estatísticas do dia
-    agendamentos_hoje = Agendamento.objects.filter(
-        data_hora__date=hoje
-    ).select_related('cliente', 'profissional', 'servico')
-    
+    agendamentos_hoje = Agendamento.objects.filter(data_hora__date=hoje).select_related(
+        "cliente", "profissional", "servico"
+    )
+
     stats = {
-        'agendamentos_hoje': agendamentos_hoje.count(),
-        'agendamentos_confirmados': agendamentos_hoje.filter(status='CONFIRMADO').count(),
-        'agendamentos_concluidos': agendamentos_hoje.filter(status='CONCLUIDO').count(),
-        'agendamentos_cancelados': agendamentos_hoje.filter(status='CANCELADO').count(),
-        'total_clientes': Cliente.objects.filter(ativo=True).count(),
-        'total_profissionais': Profissional.objects.filter(ativo=True).count(),
-        'total_servicos': Servico.objects.filter(ativo=True).count(),
+        "agendamentos_hoje": agendamentos_hoje.count(),
+        "agendamentos_confirmados": agendamentos_hoje.filter(
+            status="CONFIRMADO"
+        ).count(),
+        "agendamentos_concluidos": agendamentos_hoje.filter(status="CONCLUIDO").count(),
+        "agendamentos_cancelados": agendamentos_hoje.filter(status="CANCELADO").count(),
+        "total_clientes": Cliente.objects.filter(ativo=True).count(),
+        "total_profissionais": Profissional.objects.filter(ativo=True).count(),
+        "total_servicos": Servico.objects.filter(ativo=True).count(),
     }
-    
+
     # Próximos agendamentos (a partir de agora no timezone local)
-    proximos_agendamentos = Agendamento.objects.filter(
-        data_hora__gte=agora_local,
-        status__in=['AGENDADO', 'CONFIRMADO']
-    ).select_related('cliente', 'profissional', 'servico').order_by('data_hora')[:5]
-    
+    proximos_agendamentos = (
+        Agendamento.objects.filter(
+            data_hora__gte=agora_local, status__in=["AGENDADO", "CONFIRMADO"]
+        )
+        .select_related("cliente", "profissional", "servico")
+        .order_by("data_hora")[:5]
+    )
+
     # Agendamentos de hoje
-    agendamentos_hoje_list = agendamentos_hoje.order_by('data_hora')
-    
+    agendamentos_hoje_list = agendamentos_hoje.order_by("data_hora")
+
     context = {
-        'stats': stats,
-        'proximos_agendamentos': proximos_agendamentos,
-        'agendamentos_hoje': agendamentos_hoje_list,
-        'hoje': hoje,
+        "stats": stats,
+        "proximos_agendamentos": proximos_agendamentos,
+        "agendamentos_hoje": agendamentos_hoje_list,
+        "hoje": hoje,
     }
-    
-    return render(request, 'appointments/dashboard.html', context)
+
+    return render(request, "appointments/dashboard.html", context)

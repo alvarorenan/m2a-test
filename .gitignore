@@ -55,5 +55,11 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
 # Docker
 .dockerignore

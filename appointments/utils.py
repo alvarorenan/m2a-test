@@ -1,6 +1,7 @@
 """
 Utilitários para o app appointments
 """
+
 from django.utils import timezone
 
 
