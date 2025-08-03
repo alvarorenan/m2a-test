@@ -92,14 +92,89 @@ Algumas melhorias identificadas durante o desenvolvimento:
 - Campo `preco_final` talvez seja desnecessário (sempre usa preço do serviço)
 - Falta implementar testes unitários
 
+## Diagrama de Classes
+
+O sistema possui 5 modelos principais organizados da seguinte forma:
+
+### Modelos Principais
+
+1. **Cliente** - Dados pessoais e informações de contato
+2. **Profissional** - Especialistas com horários de trabalho e especialidades
+3. **Serviço** - Catálogo de serviços com preços e categorias
+4. **Agendamento** - Agendamentos com status e controle de conflitos
+5. **HistoricoAgendamento** - Auditoria de alterações nos agendamentos
+
+### Relacionamentos
+
+- **Cliente** ➜ **Agendamento** (1:N) - Um cliente pode ter vários agendamentos
+- **Profissional** ➜ **Agendamento** (1:N) - Um profissional atende vários agendamentos  
+- **Serviço** ➜ **Agendamento** (1:N) - Um serviço pode estar em vários agendamentos
+- **Profissional** ↔ **Serviço** (N:N) - Profissionais têm especialidades em serviços
+- **Agendamento** ➜ **HistoricoAgendamento** (1:N) - Cada agendamento mantém histórico
+
+### Regras de Negócio
+
+- ✅ **Constraint de unicidade**: Profissional não pode ter dois agendamentos no mesmo horário
+- 🔄 **Auditoria completa**: Todas as alterações são registradas no histórico
+- ⏰ **Duração padrão**: Todos os serviços têm 60 minutos de duração
+- 📋 **Status workflow**: AGENDADO → CONFIRMADO → EM_ANDAMENTO → CONCLUIDO
+
+> 📋 **Diagrama completo**: Visualização detalhada disponível em [`docs/class_diagram.puml`](docs/class_diagram.puml) (PlantUML)
+
 ## Estrutura do projeto
 
 ```
-appointments/
-├── models/          # Cliente, Profissional, Agendamento, etc
-├── views/           # Views organizadas por funcionalidade
-├── forms.py         # Formulários com validações personalizadas
-├── admin.py         # Interface administrativa
-├── services/        # Lógica de negócio
-└── management/      # Comandos personalizados (populate_data)
+m2a-test/
+├── appointments/             # App principal do Django
+│   ├── models/
+│   │   ├── __init__.py           # Imports dos modelos
+│   │   ├── agendamento.py        # Model de Agendamento
+│   │   ├── cliente.py            # Model de Cliente  
+│   │   ├── profissional.py       # Model de Profissional
+│   │   ├── servico.py            # Model de Serviço
+│   │   └── historico.py          # Model de Histórico
+│   ├── views/
+│   │   ├── __init__.py           # Imports das views
+│   │   ├── agendamentos.py       # Views de agendamentos
+│   │   ├── clientes.py           # Views de clientes
+│   │   ├── profissionais.py      # Views de profissionais
+│   │   ├── servicos.py           # Views de serviços
+│   │   ├── dashboard.py          # View do dashboard
+│   │   ├── relatorios.py         # Views de relatórios
+│   │   └── api.py                # Endpoints da API
+│   ├── services/
+│   │   ├── agendamento_service.py # Lógica de negócio para agendamentos
+│   │   └── relatorio_service.py   # Lógica de negócio para relatórios
+│   ├── management/
+│   │   └── commands/
+│   │       └── populate_data.py   # Comando para popular dados de teste
+│   ├── migrations/               # Migrações do banco de dados
+│   ├── forms.py                 # Formulários com validações
+│   ├── admin.py                 # Interface administrativa
+│   ├── urls.py                  # Roteamento de URLs
+│   ├── apps.py                  # Configuração da app
+│   └── tests.py                 # Testes (atualmente básico)
+├── salon_management/         # Configurações do Django
+│   ├── __init__.py
+│   ├── settings.py              # Configurações gerais
+│   ├── urls.py                  # URLs principais
+│   ├── wsgi.py                  # Configuração WSGI
+│   └── asgi.py                  # Configuração ASGI
+├── templates/                # Templates HTML
+│   ├── base.html                # Template base
+│   └── appointments/            # Templates específicos
+├── static/                   # Arquivos estáticos
+│   ├── css/                     # Folhas de estilo
+│   └── js/                      # Scripts JavaScript
+├── venv/                     # Ambiente virtual Python
+├── manage.py                 # Script de gerenciamento Django
+├── requirements.txt          # Dependências Python
+├── Dockerfile               # Configuração Docker
+├── .dockerignore            # Arquivos ignorados pelo Docker
+├── Makefile                 # Comandos de automação
+├── README.md                # Documentação do projeto
+├── .gitignore               # Arquivos ignorados pelo Git
+└── db.sqlite3               # Banco de dados SQLite
 ```
+
+

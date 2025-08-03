@@ -1,0 +1,125 @@
+@startuml Sistema de Agendamento - Diagrama de Classes
+
+!theme black-knight
+
+title Sistema de Agendamento para Salão de Beleza\nDiagrama de Classes
+
+' Definindo as classes
+class Cliente {
+    +nome: CharField(100)
+    +telefone: CharField(20)
+    +email: EmailField
+    +endereco: TextField
+    +data_nascimento: DateField
+    +observacoes: TextField
+    --
+    +data_cadastro: DateTimeField
+    +data_atualizacao: DateTimeField
+    +ativo: BooleanField
+    --
+    +__str__(): string
+}
+
+class Servico {
+    +nome: CharField(100)
+    +descricao: TextField
+    +preco: DecimalField(8,2)
+    +duracao_minutos: PositiveIntegerField
+    +categoria: CharField(50)
+    --
+    +data_cadastro: DateTimeField
+    +data_atualizacao: DateTimeField
+    +ativo: BooleanField
+    --
+    +__str__(): string
+}
+
+class Profissional {
+    +nome: CharField(100)
+    +telefone: CharField(20)
+    +email: EmailField
+    +horario_inicio: TimeField
+    +horario_fim: TimeField
+    +dias_semana: CharField(20)
+    --
+    +data_cadastro: DateTimeField
+    +data_atualizacao: DateTimeField
+    +ativo: BooleanField
+    --
+    +__str__(): string
+    +lista_dias_semana(): list
+}
+
+class Agendamento {
+    +data_hora: DateTimeField
+    +status: CharField(20)
+    +observacoes: TextField
+    +preco_final: DecimalField(8,2)
+    --
+    +data_cadastro: DateTimeField
+    +data_atualizacao: DateTimeField
+    --
+    +__str__(): string
+    +save(): void
+    +data_hora_fim(): DateTime
+}
+
+class HistoricoAgendamento {
+    +tipo_acao: CharField(20)
+    +descricao: TextField(500)
+    +status_anterior: CharField(20)
+    +status_novo: CharField(20)
+    +usuario: CharField(100)
+    +data_acao: DateTimeField
+    +observacoes: TextField
+    --
+    +__str__(): string
+}
+
+' Enumerações/Choices
+enum StatusAgendamento {
+    AGENDADO
+    CONFIRMADO
+    EM_ANDAMENTO
+    CONCLUIDO
+    CANCELADO
+    NAO_COMPARECEU
+}
+
+enum CategoriaServico {
+    CABELO
+    UNHAS
+    ESTETICA
+    MASSAGEM
+    OUTROS
+}
+
+enum TipoAcaoHistorico {
+    CRIADO
+    STATUS_ALTERADO
+    DADOS_ALTERADOS
+    CANCELADO
+    REAGENDADO
+}
+
+' Relacionamentos
+Cliente ||--o{ Agendamento : "1:N possui"
+Servico ||--o{ Agendamento : "1:N usado em"
+Profissional ||--o{ Agendamento : "1:N atende"
+Profissional }o--o{ Servico : "N:N especialista em"
+Agendamento ||--o{ HistoricoAgendamento : "1:N registra"
+
+' Associações com enums
+Agendamento --> StatusAgendamento : "usa"
+Servico --> CategoriaServico : "pertence a"
+HistoricoAgendamento --> TipoAcaoHistorico : "registra"
+HistoricoAgendamento --> StatusAgendamento : "controla mudanças"
+
+' Notas explicativas
+note right of Agendamento : REGRA: Um profissional não pode\nter dois agendamentos ativos\nno mesmo horário\n(excluindo cancelados)
+
+note bottom of HistoricoAgendamento : Registra todas as\nmudanças nos agendamentos
+
+note top of Profissional : dias_semana: string\ncom números separados\npor vírgula (1-7)
+
+@enduml
