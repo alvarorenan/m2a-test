@@ -89,7 +89,6 @@ O comando `populate_data` cria:
 
 Algumas melhorias identificadas durante o desenvolvimento:
 - Validação de conflitos poderia considerar duração do serviço
-- Campo `preco_final` talvez seja desnecessário (sempre usa preço do serviço)
 - Falta implementar testes unitários
 
 ## Diagrama de Classes
