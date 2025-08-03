@@ -118,7 +118,11 @@ O sistema possui 5 modelos principais organizados da seguinte forma:
 - ⏰ **Duração padrão**: Todos os serviços têm 60 minutos de duração
 - 📋 **Status workflow**: AGENDADO → CONFIRMADO → EM_ANDAMENTO → CONCLUIDO
 
-> 📋 **Diagrama completo**: Visualização detalhada disponível em [`docs/class_diagram.puml`](docs/class_diagram.puml) (PlantUML)
+### Diagrama Visual
+
+![Diagrama de Classes](docs/diagrama_classe.png)
+
+> 📋 **Diagrama completo**: Código fonte disponível em [`docs/class_diagram.puml`](docs/class_diagram.puml) (PlantUML)
 
 ## Estrutura do projeto
 
