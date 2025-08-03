@@ -82,7 +82,7 @@ O comando `populate_data` cria:
 - [ ] **Notificações** por email/SMS 
 - [ ] **Calendário** integrado
 - [ ] **Pagamentos** online
-- [ ] **Relatórios** em PDF
+- [ ] **Relatórios** mais completos, com inclusão de gráficos, dashboards e KPIs relevantes
 - [ ] **Testes** automatizados
 
 ## Notas de desenvolvimento
