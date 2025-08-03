@@ -118,7 +118,7 @@ O sistema possui 5 modelos principais organizados da seguinte forma:
 - ⏰ **Duração padrão**: Todos os serviços têm 60 minutos de duração
 - 📋 **Status workflow**: AGENDADO → CONFIRMADO → EM_ANDAMENTO → CONCLUIDO
 
-### Diagrama Visual
+### Diagrama de Classes
 
 ![Diagrama de Classes](docs/diagrama_classe.png)
 
