@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from django.utils import timezone
 from ..models import Cliente, Servico, Profissional, Agendamento
+from ..utils import get_local_now, get_local_today
 
 
 def dashboard(request):
     """Dashboard principal do sistema"""
-    hoje = timezone.now().date()
+    # Obtém a data atual no timezone configurado (America/Sao_Paulo)
+    agora_local = get_local_now()
+    hoje = get_local_today()
     
     # Estatísticas do dia
     agendamentos_hoje = Agendamento.objects.filter(
@@ -22,9 +25,9 @@ def dashboard(request):
         'total_servicos': Servico.objects.filter(ativo=True).count(),
     }
     
-    # Próximos agendamentos
+    # Próximos agendamentos (a partir de agora no timezone local)
     proximos_agendamentos = Agendamento.objects.filter(
-        data_hora__gte=timezone.now(),
+        data_hora__gte=agora_local,
         status__in=['AGENDADO', 'CONFIRMADO']
     ).select_related('cliente', 'profissional', 'servico').order_by('data_hora')[:5]
     

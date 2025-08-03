@@ -4,6 +4,7 @@ from django.db.models import Count, Sum
 from datetime import datetime, timedelta
 
 from ..models import Agendamento, Profissional
+from ..utils import get_local_today, get_local_now
 
 
 def relatorio_servicos(request):
@@ -15,12 +16,12 @@ def relatorio_servicos(request):
     
     # Data padrão: último mês
     if not data_inicio:
-        data_inicio = (timezone.now() - timedelta(days=30)).date()
+        data_inicio = (get_local_now() - timedelta(days=30)).date()
     else:
         data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
     
     if not data_fim:
-        data_fim = timezone.now().date()
+        data_fim = get_local_today()
     else:
         data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
     

@@ -8,6 +8,7 @@ from django.db import IntegrityError
 
 from ..models import Profissional, Agendamento, HistoricoAgendamento
 from ..forms import AgendamentoForm
+from ..utils import get_local_today
 
 
 class AgendamentoListView(ListView):
@@ -128,7 +129,7 @@ def atualizar_status_agendamento(request, pk):
         novo_status = request.POST.get('status')
         
         # Validação: não permitir "EM_ANDAMENTO" para datas passadas
-        if novo_status == 'EM_ANDAMENTO' and agendamento.data_hora.date() < timezone.now().date():
+        if novo_status == 'EM_ANDAMENTO' and agendamento.data_hora.date() < get_local_today():
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': False, 

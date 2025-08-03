@@ -2,6 +2,7 @@ from django import forms
 from django.utils import timezone
 from datetime import datetime, time
 from .models import Agendamento, Cliente, Profissional, Servico
+from .utils import get_local_today, get_local_now
 
 
 class AgendamentoForm(forms.ModelForm):
@@ -12,9 +13,11 @@ class AgendamentoForm(forms.ModelForm):
             attrs={
                 'type': 'date',
                 'class': 'form-control',
-                'min': timezone.now().date().strftime('%Y-%m-%d')  # Não permite datas passadas
-            }
+                'min': get_local_today().strftime('%Y-%m-%d')  # Não permite datas passadas
+            },
+            format='%Y-%m-%d'  # Formato ISO para input type="date"
         ),
+        input_formats=['%Y-%m-%d'],  # Aceita apenas formato ISO
         help_text='Selecione a data do agendamento'
     )
     
@@ -24,10 +27,10 @@ class AgendamentoForm(forms.ModelForm):
             attrs={
                 'type': 'time',
                 'class': 'form-control',
-                'step': '1800'  # Intervalos de 30 minutos
+                'step': '3600'  # Intervalos de 1 hora
             }
         ),
-        help_text='Selecione o horário do agendamento'
+        help_text='Selecione o horário do agendamento (apenas horas cheias: 08:00, 09:00, etc.)'
     )
 
     class Meta:
@@ -69,29 +72,37 @@ class AgendamentoForm(forms.ModelForm):
         
         # Se está editando um agendamento existente, separar data e hora
         if self.instance and self.instance.pk and self.instance.data_hora:
-            self.fields['data'].initial = self.instance.data_hora.date()
-            self.fields['hora'].initial = self.instance.data_hora.time()
+            # Converter para timezone local antes de separar data e hora
+            data_hora_local = timezone.localtime(self.instance.data_hora)
+            self.fields['data'].initial = data_hora_local.date()
+            self.fields['hora'].initial = data_hora_local.time()
         else:
             # Valores padrão para novo agendamento
-            now = timezone.now()
-            self.fields['data'].initial = now.date()
-            # Próximo horário comercial (próxima meia hora)
-            if now.hour < 8:
+            now_local = get_local_now()
+            self.fields['data'].initial = get_local_today()
+            # Próximo horário comercial (próxima hora cheia)
+            if now_local.hour < 8:
                 self.fields['hora'].initial = time(8, 0)
-            elif now.hour >= 18:
+            elif now_local.hour >= 18:
                 # Se após 18h, sugere 8h do próximo dia
                 self.fields['hora'].initial = time(8, 0)
             else:
-                # Próxima meia hora
-                minutes = 0 if now.minute < 30 else 30
-                hour = now.hour if minutes == 30 else now.hour + 1
-                self.fields['hora'].initial = time(hour, minutes)
+                # Próxima hora cheia
+                hour = now_local.hour + 1 if now_local.minute > 0 else now_local.hour
+                self.fields['hora'].initial = time(hour, 0)
 
     def clean(self):
         cleaned_data = super().clean()
         data = cleaned_data.get('data')
         hora = cleaned_data.get('hora')
         profissional = cleaned_data.get('profissional')
+        
+        if hora:
+            # Validar se o horário está em horas cheias (apenas :00)
+            if hora.minute != 0:
+                raise forms.ValidationError(
+                    'O horário deve ser em horas cheias (exemplo: 08:00, 09:00, 10:00).'
+                )
         
         if data and hora:
             # Combinar data e hora
