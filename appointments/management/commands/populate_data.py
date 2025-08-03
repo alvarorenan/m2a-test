@@ -293,21 +293,96 @@ class Command(BaseCommand):
                         )
                         agendamentos_criados += 1
 
-        # Agendamentos futuros (próximos 15 dias)
-        for dias_futuro in range(0, 15):
+        # Agendamentos para hoje
+        agendamentos_hoje = 0
+        data_hoje = hoje
+        dia_semana_hoje = data_hoje.isoweekday()
+        profissionais_trabalham_hoje = [
+            p for p in profissionais if dia_semana_hoje in p.lista_dias_semana
+        ]
+
+        if profissionais_trabalham_hoje:
+            # Garantir exatamente 3 agendamentos para hoje
+            tentativas_max = 20  # Para evitar loop infinito
+            while agendamentos_hoje < 3 and tentativas_max > 0:
+                tentativas_max -= 1
+
+                cliente = random.choice(clientes)
+                profissional = random.choice(profissionais_trabalham_hoje)
+                servicos_prof = list(profissional.especialidades.all())
+
+                if servicos_prof:
+                    servico = random.choice(servicos_prof)
+
+                    # Horário aleatório dentro do horário de trabalho
+                    hora_inicio = profissional.horario_inicio.hour
+                    hora_fim = profissional.horario_fim.hour - 1
+
+                    # Evitar horários que já passaram hoje
+                    hora_atual = timezone.now().hour
+                    if hora_atual > hora_inicio:
+                        hora_inicio = min(hora_atual + 1, hora_fim)
+
+                    # Se não há horários disponíveis, usar todo o range
+                    if hora_inicio > hora_fim:
+                        hora_inicio = profissional.horario_inicio.hour
+                        hora_fim = profissional.horario_fim.hour - 1
+
+                    hora = random.randint(hora_inicio, hora_fim)
+
+                    data_hora = timezone.make_aware(
+                        datetime.combine(data_hoje, time(hora, 0))
+                    )
+
+                    # Status para hoje baseado na hora
+                    if hora < hora_atual:
+                        # Horários que já passaram hoje
+                        status = random.choice(
+                            ["CONCLUIDO", "CONCLUIDO", "EM_ANDAMENTO", "CANCELADO"]
+                        )
+                    elif hora == hora_atual:
+                        # Horário atual
+                        status = random.choice(["EM_ANDAMENTO", "CONFIRMADO"])
+                    else:
+                        # Horários futuros hoje
+                        status = random.choice(["AGENDADO", "CONFIRMADO", "CONFIRMADO"])
+
+                    # Verificar se não há conflito (mesma data/hora/profissional)
+                    if not Agendamento.objects.filter(
+                        profissional=profissional, data_hora=data_hora
+                    ).exists():
+                        Agendamento.objects.create(
+                            cliente=cliente,
+                            profissional=profissional,
+                            servico=servico,
+                            data_hora=data_hora,
+                            status=status,
+                        )
+                        agendamentos_criados += 1
+                        agendamentos_hoje += 1
+
+        # Agendamentos futuros (máximo 4 no total)
+        agendamentos_futuros = 0
+        for dias_futuro in range(1, 8):  # Próximos 7 dias
+            if agendamentos_futuros >= 4:
+                break
+
             data = hoje + timedelta(days=dias_futuro)
 
             # Verificar se é dia de trabalho para algum profissional
             dia_semana = data.isoweekday()
             profissionais_trabalham = [
-                p for p in profissionais if str(dia_semana) in p.lista_dias_semana
+                p for p in profissionais if dia_semana in p.lista_dias_semana
             ]
 
             if profissionais_trabalham:
-                # 2-6 agendamentos por dia
-                num_agendamentos = random.randint(2, 6)
+                # 1 agendamento por dia até completar 4
+                num_agendamentos = 1
 
                 for _ in range(num_agendamentos):
+                    if agendamentos_futuros >= 4:
+                        break
+
                     cliente = random.choice(clientes)
                     profissional = random.choice(profissionais_trabalham)
                     servicos_prof = list(profissional.especialidades.all())
@@ -318,19 +393,25 @@ class Command(BaseCommand):
                         # Horário aleatório dentro do horário de trabalho
                         hora_inicio = profissional.horario_inicio.hour
                         hora_fim = profissional.horario_fim.hour - 1
-                        hora = random.randint(hora_inicio, hora_fim)
+
+                        if hora_inicio <= hora_fim:
+                            hora = random.randint(hora_inicio, hora_fim)
+                        else:
+                            continue  # Pular se não há horários disponíveis
 
                         data_hora = timezone.make_aware(
                             datetime.combine(data, time(hora, 0))
                         )
 
-                        # Status futuro
-                        if dias_futuro == 0:  # Hoje
+                        # Status para agendamentos futuros
+                        if dias_futuro <= 2:  # Próximos 2 dias
                             status = random.choice(
-                                ["AGENDADO", "CONFIRMADO", "EM_ANDAMENTO"]
+                                ["AGENDADO", "CONFIRMADO", "CONFIRMADO"]
                             )
-                        else:
-                            status = random.choice(["AGENDADO", "CONFIRMADO"])
+                        else:  # Dias mais distantes
+                            status = random.choice(
+                                ["AGENDADO", "AGENDADO", "CONFIRMADO"]
+                            )
 
                         # Verificar se não há conflito
                         if not Agendamento.objects.filter(
@@ -344,6 +425,7 @@ class Command(BaseCommand):
                                 status=status,
                             )
                             agendamentos_criados += 1
+                            agendamentos_futuros += 1
 
         self.stdout.write(
             self.style.SUCCESS(

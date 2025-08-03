@@ -81,6 +81,8 @@ class AgendamentoCreateView(CreateView):
                 usuario="Sistema",
             )
 
+            # Mensagem de sucesso
+            messages.success(self.request, "Agendamento criado com sucesso!")
             return response
 
         except IntegrityError:
@@ -91,9 +93,6 @@ class AgendamentoCreateView(CreateView):
                 "Por favor, selecione um horário diferente.",
             )
             return self.form_invalid(form)
-
-        messages.success(self.request, "Agendamento criado com sucesso!")
-        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -114,7 +113,7 @@ class AgendamentoUpdateView(UpdateView):
         return Agendamento.objects.select_related("cliente", "profissional", "servico")
 
     def form_valid(self, form):
-        messages.success(self.request, "Agendamento atualizado com sucesso!")
+        messages.success(self.request, "✅ Agendamento atualizado com sucesso!")
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
