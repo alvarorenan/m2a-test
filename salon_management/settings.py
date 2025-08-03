@@ -27,20 +27,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-zk=9u4g9&w+tyba27m_bn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=lambda v: [s.strip() for s in v.split(',')] if v != '*' else ['*'])
-
-# CSRF trusted origins for ngrok and external access
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'https://localhost:8000',
-    'http://127.0.0.1:8000',
-    'https://127.0.0.1:8000',
-]
-
-# For ngrok in development
-if DEBUG:
-    CSRF_COOKIE_SECURE = False
-    CSRF_COOKIE_SAMESITE = None
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
