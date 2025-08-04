@@ -46,4 +46,4 @@ def dashboard(request):
         "hoje": hoje,
     }
 
-    return render(request, "appointments/dashboard.html", context)
+    return render(request, "appointments/dashboard/dashboard.html", context)

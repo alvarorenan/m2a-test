@@ -9,7 +9,7 @@ from ..models import Cliente
 
 class ClienteListView(ListView):
     model = Cliente
-    template_name = "appointments/cliente_list.html"
+    template_name = "appointments/clientes/cliente_list.html"
     context_object_name = "clientes"
     paginate_by = 20
 
@@ -28,7 +28,7 @@ class ClienteListView(ListView):
 class ClienteCreateView(CreateView):
     model = Cliente
     form_class = ClienteForm
-    template_name = "appointments/cliente_form.html"
+    template_name = "appointments/clientes/cliente_form.html"
     success_url = reverse_lazy("appointments:cliente_list")
 
     def form_valid(self, form):
@@ -39,7 +39,7 @@ class ClienteCreateView(CreateView):
 class ClienteUpdateView(UpdateView):
     model = Cliente
     form_class = ClienteForm
-    template_name = "appointments/cliente_form.html"
+    template_name = "appointments/clientes/cliente_form.html"
     success_url = reverse_lazy("appointments:cliente_list")
 
     def form_valid(self, form):

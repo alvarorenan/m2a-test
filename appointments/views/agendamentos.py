@@ -14,7 +14,7 @@ class AgendamentoListView(ListView):
     """Lista de agendamentos com filtros"""
 
     model = Agendamento
-    template_name = "appointments/agendamento_list.html"
+    template_name = "appointments/agendamentos/agendamento_list.html"
     context_object_name = "agendamentos"
     paginate_by = 20
 
@@ -53,7 +53,7 @@ class AgendamentoDetailView(DetailView):
     """Detalhes do agendamento"""
 
     model = Agendamento
-    template_name = "appointments/agendamento_detail.html"
+    template_name = "appointments/agendamentos/agendamento_detail.html"
     context_object_name = "agendamento"
 
     def get_queryset(self):
@@ -65,7 +65,7 @@ class AgendamentoCreateView(CreateView):
 
     model = Agendamento
     form_class = AgendamentoForm
-    template_name = "appointments/agendamento_form.html"
+    template_name = "appointments/agendamentos/agendamento_form.html"
     success_url = reverse_lazy("appointments:agendamento_list")
 
     def form_valid(self, form):
@@ -106,7 +106,7 @@ class AgendamentoUpdateView(UpdateView):
 
     model = Agendamento
     form_class = AgendamentoForm
-    template_name = "appointments/agendamento_form.html"
+    template_name = "appointments/agendamentos/agendamento_form.html"
     success_url = reverse_lazy("appointments:agendamento_list")
 
     def get_queryset(self):

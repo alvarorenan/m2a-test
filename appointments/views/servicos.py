@@ -8,7 +8,7 @@ from ..models import Servico
 
 class ServicoListView(ListView):
     model = Servico
-    template_name = "appointments/servico_list.html"
+    template_name = "appointments/servicos/servico_list.html"
     context_object_name = "servicos"
     paginate_by = 20
 
@@ -28,7 +28,7 @@ class ServicoListView(ListView):
 class ServicoCreateView(CreateView):
     model = Servico
     form_class = ServicoForm
-    template_name = "appointments/servico_form.html"
+    template_name = "appointments/servicos/servico_form.html"
     success_url = reverse_lazy("appointments:servico_list")
 
     def form_valid(self, form):
@@ -39,7 +39,7 @@ class ServicoCreateView(CreateView):
 class ServicoUpdateView(UpdateView):
     model = Servico
     form_class = ServicoForm
-    template_name = "appointments/servico_form.html"
+    template_name = "appointments/servicos/servico_form.html"
     success_url = reverse_lazy("appointments:servico_list")
 
     def form_valid(self, form):

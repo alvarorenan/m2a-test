@@ -9,7 +9,7 @@ from ..models import Profissional
 
 class ProfissionalListView(ListView):
     model = Profissional
-    template_name = "appointments/profissional_list.html"
+    template_name = "appointments/profissionais/profissional_list.html"
     context_object_name = "profissionais"
     paginate_by = 20
 
@@ -28,7 +28,7 @@ class ProfissionalListView(ListView):
 class ProfissionalCreateView(CreateView):
     model = Profissional
     form_class = ProfissionalForm
-    template_name = "appointments/profissional_form.html"
+    template_name = "appointments/profissionais/profissional_form.html"
     success_url = reverse_lazy("appointments:profissional_list")
 
     def form_valid(self, form):
@@ -39,7 +39,7 @@ class ProfissionalCreateView(CreateView):
 class ProfissionalUpdateView(UpdateView):
     model = Profissional
     form_class = ProfissionalForm
-    template_name = "appointments/profissional_form.html"
+    template_name = "appointments/profissionais/profissional_form.html"
     success_url = reverse_lazy("appointments:profissional_list")
 
     def form_valid(self, form):

@@ -81,4 +81,4 @@ def relatorio_servicos(request):
         "periodo_dias": (data_fim - data_inicio).days + 1,
     }
 
-    return render(request, "appointments/relatorio_servicos.html", context)
+    return render(request, "appointments/relatorios/relatorio_servicos.html", context)
